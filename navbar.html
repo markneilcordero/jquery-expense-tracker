@@ -1,0 +1,87 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="dashboard.html">💸 Expense Tracker</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navLinks">
+        <!-- Links inserted based on auth -->
+      </ul>
+      <div id="authButtons" class="d-flex">
+        <!-- Auth buttons inserted dynamically -->
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  $(document).ready(function () {
+    const token = localStorage.getItem("jquery-expense-tracker-token");
+    const navLinks = $("#navLinks");
+    const authButtons = $("#authButtons");
+
+    if (token) {
+      // User is logged in
+      navLinks.append(`
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="budgets.html">Budgets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="expenses.html">Expenses</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="incomes.html">Incomes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="categories.html">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="reports.html">Reports</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="profile.html">Profile</a>
+          </li>
+        `);
+
+      authButtons.html(`
+          <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+        `);
+
+      // Logout handler
+      $("#logoutBtn").click(function () {
+        $.ajax({
+          url: "https://markneilcordero.com/jquery-expense-tracker/public/api/logout",
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json",
+          },
+          success: function () {
+            localStorage.clear();
+            window.location.href = "index.html";
+          },
+          error: function () {
+            alert("Logout failed.");
+          },
+        });
+      });
+    } else {
+      // User is not logged in
+      navLinks.html("");
+      authButtons.html(`
+          <a href="login.html" class="btn btn-outline-light btn-sm me-2">Login</a>
+          <a href="register.html" class="btn btn-outline-light btn-sm">Register</a>
+        `);
+    }
+  });
+</script>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>📊 Dashboard - Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+      }
+      .container {
+        flex: 1;
+      }
+      .card-icon {
+        font-size: 2rem;
+        opacity: 0.9;
+      }
+      .shadow-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+      #incomeExpenseChart,
+      #monthlyTrendsChart {
+        max-height: 320px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div id="navbarContainer"></div>
+
+    <div class="container py-4">
+      <div id="alertBox" class="alert d-none"></div>
+
+      <h2 class="mb-4 fw-bold text-primary">📊 Dashboard Overview</h2>
+
+      <!-- Time Range Selector -->
+      <div class="d-flex justify-content-end mb-3">
+        <label for="timeRange" class="form-label me-2 mt-2 fw-semibold"
+          >📆 Time Range:</label
+        >
+        <select
+          id="timeRange"
+          class="form-select form-select-sm w-auto d-inline-block"
+        >
+          <option value="this_month">This Month</option>
+          <option value="last_month">Last Month</option>
+          <option value="last_3_months">Last 3 Months</option>
+          <option value="last_6_months">Last 6 Months</option>
+          <option value="this_year">This Year</option>
+        </select>
+      </div>
+
+      <!-- Income vs Expense Chart -->
+      <div class="card shadow mb-4 shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3 text-success">📈 Income vs Expense</h5>
+          <canvas id="incomeExpenseChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Monthly Trends -->
+      <div class="card shadow mb-4 shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3 text-primary">📅 Monthly Trends</h5>
+          <canvas id="monthlyTrendsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Trend Charts -->
+      <div class="card shadow mb-4 shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3 text-info">📊 Category Trends</h5>
+          <div id="categoryTrendCharts"></div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card text-white bg-danger shadow shadow-hover">
+            <div
+              class="card-body d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <h6 class="card-title">💸 Total Expense</h6>
+                <p id="totalExpense" class="fs-4 mb-0">₱0.00</p>
+              </div>
+              <div class="card-icon">📉</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card text-white bg-success shadow shadow-hover">
+            <div
+              class="card-body d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <h6 class="card-title">💰 Total Income</h6>
+                <p id="totalIncome" class="fs-4 mb-0">₱0.00</p>
+              </div>
+              <div class="card-icon">📈</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card text-white bg-primary shadow shadow-hover">
+            <div
+              class="card-body d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <h6 class="card-title">📌 Net Balance</h6>
+                <p id="netBalance" class="fs-4 mb-0">₱0.00</p>
+              </div>
+              <div class="card-icon">💼</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expenses by Category -->
+      <div class="card shadow shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3">📂 Expenses by Category</h5>
+          <ul id="categoryList" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <!-- Dashboard Scripts -->
+    <script>
+      $(document).ready(function () {
+        const token = localStorage.getItem("jquery-expense-tracker-token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let incomeExpenseChart = null;
+
+        // Initial load
+        const initialRange = $("#timeRange").val();
+        fetchSummary(initialRange);
+        loadMonthlyTrends(initialRange);
+
+        // On Time Range Change
+        $("#timeRange").change(function () {
+          const selectedRange = $(this).val();
+          fetchSummary(selectedRange);
+          loadMonthlyTrends(selectedRange);
+        });
+
+        function fetchSummary(timeRange) {
+          $.ajax({
+            url: `https://markneilcordero.com/jquery-expense-tracker/public/api/analytics/summary?range=${timeRange}`,
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function (response) {
+              totalIncome = response.total_income || 0;
+              totalExpense = response.total_expense || 0;
+
+              $("#totalIncome").text("₱" + parseFloat(totalIncome).toFixed(2));
+              $("#totalExpense").text(
+                "₱" + parseFloat(totalExpense).toFixed(2)
+              );
+              updateNetBalance();
+              renderIncomeExpenseChart(totalIncome, totalExpense);
+
+              const categoryList = $("#categoryList");
+              categoryList.empty();
+              if (response.by_category && response.by_category.length > 0) {
+                response.by_category.forEach((item) => {
+                  categoryList.append(`
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>${item.category || "Uncategorized"}</span>
+                        <span>₱${parseFloat(item.total).toFixed(2)}</span>
+                      </li>`);
+                });
+              } else {
+                categoryList.append(
+                  `<li class="list-group-item">No category data available.</li>`
+                );
+              }
+            },
+            error: function () {
+              $("#alertBox")
+                .removeClass("d-none alert-success")
+                .addClass("alert alert-danger")
+                .text("Failed to fetch summary.");
+            },
+          });
+        }
+
+        function loadMonthlyTrends(timeRange) {
+          $.ajax({
+            url: `https://markneilcordero.com/jquery-expense-tracker/public/api/analytics/monthly-trends?range=${timeRange}`,
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function (res) {
+              renderMonthlyTrendsChart(res);
+            },
+            error: function () {
+              console.error("Failed to load monthly trends.");
+            },
+          });
+        }
+
+        function renderIncomeExpenseChart(income, expense) {
+          const ctx = document
+            .getElementById("incomeExpenseChart")
+            .getContext("2d");
+
+          if (incomeExpenseChart) {
+            incomeExpenseChart.destroy();
+          }
+
+          incomeExpenseChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: ["Income", "Expense"],
+              datasets: [
+                {
+                  label: "Amount (₱)",
+                  data: [income, expense],
+                  backgroundColor: ["#198754", "#dc3545"],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
+        function renderMonthlyTrendsChart(data) {
+          const ctx = document
+            .getElementById("monthlyTrendsChart")
+            .getContext("2d");
+
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: "Income",
+                  data: data.income,
+                  borderColor: "#198754",
+                  backgroundColor: "rgba(25, 135, 84, 0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: "Expense",
+                  data: data.expense,
+                  borderColor: "#dc3545",
+                  backgroundColor: "rgba(220, 53, 69, 0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: "Savings",
+                  data: data.savings,
+                  borderColor: "#0d6efd",
+                  backgroundColor: "rgba(13, 110, 253, 0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: "top" },
+              },
+              scales: {
+                y: { beginAtZero: true },
+              },
+            },
+          });
+        }
+
+        function updateNetBalance() {
+          const net = totalIncome - totalExpense;
+          const formatted = "₱" + parseFloat(net).toFixed(2);
+          $("#netBalance").text(formatted);
+        }
+
+        function loadCategoryTrends() {
+          $.ajax({
+            url: "https://markneilcordero.com/jquery-expense-tracker/public/api/analytics/category-trends",
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function (res) {
+              const container = $("#categoryTrendCharts");
+              container.empty();
+
+              res.datasets.forEach((dataset, index) => {
+                const canvasId = `catTrendChart${index}`;
+                container.append(`
+          <div class="mb-4">
+            <h6 class="mb-2">${dataset.label}</h6>
+            <canvas id="${canvasId}" height="100"></canvas>
+          </div>
+        `);
+
+                const ctx = document.getElementById(canvasId).getContext("2d");
+                new Chart(ctx, {
+                  type: "line",
+                  data: {
+                    labels: res.labels,
+                    datasets: [
+                      {
+                        label: dataset.label,
+                        data: dataset.data,
+                        borderColor: "#0d6efd",
+                        backgroundColor: "rgba(13, 110, 253, 0.2)",
+                        fill: true,
+                        tension: 0.4,
+                      },
+                    ],
+                  },
+                  options: {
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                      },
+                    },
+                  },
+                });
+              });
+            },
+            error: function () {
+              console.error("Failed to load category trends.");
+            },
+          });
+        }
+        loadCategoryTrends();
+
+        $("#logoutBtn").click(function () {
+          $.ajax({
+            url: "https://markneilcordero.com/jquery-expense-tracker/public/api/logout",
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function () {
+              localStorage.clear();
+              window.location.href = "login.html";
+            },
+            error: function () {
+              alert("Logout failed. Please try again.");
+            },
+          });
+        });
+      });
+    </script>
+
+    <script>
+      $("#navbarContainer").load("navbar.html");
+      $("#footerContainer").load("footer.html");
+    </script>
+  </body>
+</html>

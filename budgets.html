@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Budgets - Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .container {
+        flex: 1;
+      }
+      .budget-card {
+        transition: 0.2s ease-in-out;
+      }
+      .budget-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .progress {
+        height: 20px;
+      }
+      .progress-bar {
+        font-size: 0.75rem;
+        line-height: 20px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <div id="navbarContainer"></div>
+
+    <div class="container py-5">
+      <div id="alertBox" class="alert d-none"></div>
+
+      <h3 class="mb-4 fw-bold text-primary">📊 Manage Budgets</h3>
+
+      <!-- Add Budget Form -->
+      <form id="addBudgetForm" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+          <label for="budgetCategory" class="form-label">Category</label>
+          <select id="budgetCategory" class="form-select" required>
+            <option value="">Select a category</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="budgetAmount" class="form-label">Amount (₱)</label>
+          <input
+            type="number"
+            id="budgetAmount"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-3">
+          <label for="budgetMonth" class="form-label">Month</label>
+          <input type="month" id="budgetMonth" class="form-control" required />
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-success w-100">
+            ➕ Add Budget
+          </button>
+        </div>
+      </form>
+
+      <!-- Budget Progress Summary -->
+      <div id="budgetSummary" class="mb-4"></div>
+
+      <!-- Budget List -->
+      <div id="budgetList" class="row gy-4"></div>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      class="modal fade"
+      id="deleteModal"
+      tabindex="-1"
+      aria-labelledby="deleteModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this budget?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button id="confirmDeleteBtn" type="button" class="btn btn-danger">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      const API_BASE =
+        "https://markneilcordero.com/jquery-expense-tracker/public/api";
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("jquery-expense-tracker-token");
+        if (!token) return (window.location.href = "login.html");
+
+        function showAlert(type, message) {
+          $("#alertBox")
+            .removeClass("d-none alert-success alert-danger")
+            .addClass("alert alert-" + type)
+            .text(message);
+        }
+
+        function loadBudgets() {
+          const monthNow = new Date().toISOString().slice(0, 7);
+          const summaryData = {};
+          const limits = {};
+          const $list = $("#budgetList").empty();
+          const $summary = $("#budgetSummary").empty();
+
+          $.ajax({
+            url: `${API_BASE}/budgets`,
+            method: "GET",
+            headers: { Authorization: "Bearer " + token },
+            success: function (budgets) {
+              budgets.forEach(
+                (b) =>
+                  (limits[`${b.category}_${b.month}`] = parseFloat(b.amount))
+              );
+
+              $.ajax({
+                url: `${API_BASE}/expenses`,
+                method: "GET",
+                headers: { Authorization: "Bearer " + token },
+                success: function (expenses) {
+                  expenses.forEach((e) => {
+                    const cat = e.category ?? "Uncategorized";
+                    const mon = e.date.slice(0, 7);
+                    const key = `${cat}_${mon}`;
+                    summaryData[key] =
+                      (summaryData[key] || 0) + parseFloat(e.amount);
+                  });
+
+                  Object.keys(limits).forEach((key) => {
+                    const [cat, mon] = key.split("_");
+                    if (mon !== monthNow) return;
+                    const spent = summaryData[key] || 0;
+                    const limit = limits[key];
+                    const percent = Math.min(
+                      100,
+                      Math.round((spent / limit) * 100)
+                    );
+                    const barClass = spent > limit ? "bg-danger" : "bg-success";
+
+                    $summary.append(`
+                    <div class="mb-3">
+                      <strong>${cat} (${mon}):</strong>
+                      ₱${spent.toFixed(2)} / ₱${limit.toFixed(2)}
+                      <div class="progress mt-1">
+                        <div class="progress-bar ${barClass}" style="width:${percent}%">${percent}%</div>
+                      </div>
+                    </div>
+                  `);
+                  });
+
+                  budgets.forEach((b) => {
+                    const key = `${b.category}_${b.month}`;
+                    const spent = summaryData[key] || 0;
+                    const over = spent > parseFloat(b.amount);
+                    const cardStyle = over ? "border-danger" : "border-success";
+
+                    $list.append(`
+                    <div class="col-12">
+                      <div class="card shadow-sm budget-card ${cardStyle}" data-id="${b.id}">
+                        <div class="card-body">
+                          <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                              <input type="text" class="form-control category" value="${b.category}">
+                            </div>
+                            <div class="col-md-3">
+                              <input type="number" class="form-control amount" value="${b.amount}">
+                            </div>
+                            <div class="col-md-3">
+                              <input type="month" class="form-control month" value="${b.month}">
+                            </div>
+                            <div class="col-md-3 text-end">
+                              <button class="btn btn-sm btn-primary update-btn me-2">Update</button>
+                              <button class="btn btn-sm btn-danger delete-btn">Delete</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  `);
+                  });
+                },
+                error: () => showAlert("danger", "Failed to load expenses."),
+              });
+            },
+            error: () => showAlert("danger", "Failed to load budgets."),
+          });
+        }
+
+        $("#addBudgetForm").submit(function (e) {
+          e.preventDefault();
+          const data = {
+            category: $("#budgetCategory").val(),
+            amount: $("#budgetAmount").val(),
+            month: $("#budgetMonth").val(),
+          };
+
+          $.ajax({
+            url: `${API_BASE}/budgets`,
+            method: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            headers: { Authorization: "Bearer " + token },
+            success: () => {
+              showAlert("success", "Budget added!");
+              $("#addBudgetForm")[0].reset();
+              loadBudgets();
+            },
+            error: (xhr) => {
+              let msg = "Failed to add budget.";
+              if (xhr.responseJSON?.message) msg = xhr.responseJSON.message;
+              showAlert("danger", msg);
+            },
+          });
+        });
+
+        // Update Budget
+        $(document).on("click", ".update-btn", function () {
+          const card = $(this).closest(".card");
+          const id = card.data("id");
+          const category = card.find(".category").val();
+          const amount = card.find(".amount").val();
+          const month = card.find(".month").val();
+
+          $.ajax({
+            url: `${API_BASE}/budgets/${id}`,
+            method: "PATCH",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({ category, amount, month }),
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function () {
+              showAlert("success", "Budget updated successfully!");
+              loadBudgets(); // ✅ Refresh cards after update
+            },
+            error: function () {
+              showAlert("danger", "Failed to update budget.");
+            },
+          });
+        });
+
+        let budgetToDeleteId = null;
+
+        // Open Delete Modal
+        $(document).on("click", ".delete-btn", function () {
+          const card = $(this).closest(".card");
+          budgetToDeleteId = card.data("id");
+          const deleteModal = new bootstrap.Modal(
+            document.getElementById("deleteModal")
+          );
+          deleteModal.show();
+        });
+
+        // Confirm Delete
+        $("#confirmDeleteBtn").click(function () {
+          if (!budgetToDeleteId) return;
+
+          $.ajax({
+            url: `${API_BASE}/budgets/${budgetToDeleteId}`,
+            method: "DELETE",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function () {
+              showAlert("success", "Budget deleted successfully!");
+              budgetToDeleteId = null;
+              const modalInstance = bootstrap.Modal.getInstance(
+                document.getElementById("deleteModal")
+              );
+              modalInstance.hide();
+              loadBudgets();
+            },
+            error: function () {
+              showAlert("danger", "Failed to delete budget.");
+            },
+          });
+        });
+
+        $.ajax({
+          url: `${API_BASE}/categories`,
+          method: "GET",
+          headers: { Authorization: "Bearer " + token },
+          success: (categories) => {
+            categories.forEach((cat) =>
+              $("#budgetCategory").append(
+                `<option value="${cat.name}">${cat.name}</option>`
+              )
+            );
+          },
+          error: () => console.error("Category load failed."),
+        });
+
+        loadBudgets();
+      });
+    </script>
+
+    <script>
+      $("#navbarContainer").load("navbar.html");
+      $("#footerContainer").load("footer.html");
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

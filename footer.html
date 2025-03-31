@@ -1,0 +1,15 @@
+<footer class="bg-dark text-white pt-4 pb-3 mt-5 shadow-sm">
+    <div class="container text-center">
+      <p class="mb-1 fs-6">
+        © <span id="footerYear"></span> <strong>Expense Tracker</strong>. All rights reserved.
+      </p>
+      <small>Designed and built by <strong>Mark Neil Cordero</strong></small>
+    </div>
+  </footer>
+  
+  <script>
+    $(document).ready(function () {
+      $('#footerYear').text(new Date().getFullYear());
+    });
+  </script>
+  

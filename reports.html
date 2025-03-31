@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reports - Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .container {
+        flex: 1;
+      }
+      .card {
+        border-radius: 0.75rem;
+      }
+      .chart-container {
+        height: 300px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <div id="navbarContainer"></div>
+
+    <!-- Content -->
+    <div class="container py-5">
+      <div id="alertBox" class="alert d-none"></div>
+
+      <h3 class="fw-bold mb-4">📊 Expense Reports</h3>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-3">📂 Expenses by Category</h5>
+              <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-3">📅 Monthly Expense Trend</h5>
+              <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footerContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const API_BASE =
+        "https://markneilcordero.com/jquery-expense-tracker/public/api";
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("jquery-expense-tracker-token");
+        if (!token) return (window.location.href = "login.html");
+
+        function showAlert(type, message) {
+          $("#alertBox")
+            .removeClass("d-none alert-success alert-danger")
+            .addClass("alert alert-" + type)
+            .text(message);
+        }
+
+        // Category Breakdown Chart (Pie)
+        $.ajax({
+          url: API_BASE + "/expenses/summary",
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json",
+          },
+          success: function (res) {
+            const labels = res.by_category.map(
+              (c) => c.category || "Uncategorized"
+            );
+            const data = res.by_category.map((c) =>
+              parseFloat(c.total).toFixed(2)
+            );
+            const backgroundColors = [
+              "#0d6efd",
+              "#6f42c1",
+              "#198754",
+              "#ffc107",
+              "#dc3545",
+              "#20c997",
+              "#fd7e14",
+            ];
+
+            new Chart(document.getElementById("categoryChart"), {
+              type: "pie",
+              data: {
+                labels,
+                datasets: [
+                  {
+                    label: "Expense by Category",
+                    data,
+                    backgroundColor: backgroundColors,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                plugins: {
+                  legend: { position: "bottom" },
+                },
+              },
+            });
+          },
+          error: () => showAlert("danger", "Failed to load category summary."),
+        });
+
+        // Monthly Expense Chart (Bar)
+        $.ajax({
+          url: API_BASE + "/expenses/monthly-report",
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json",
+          },
+          success: function (res) {
+            const labels = res.map((entry) => entry.month);
+            const data = res.map((entry) => parseFloat(entry.total).toFixed(2));
+
+            new Chart(document.getElementById("monthlyChart"), {
+              type: "bar",
+              data: {
+                labels,
+                datasets: [
+                  {
+                    label: "Monthly Expense Total",
+                    data,
+                    backgroundColor: "rgba(13, 110, 253, 0.6)",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                plugins: {
+                  legend: { display: false },
+                },
+                scales: {
+                  y: { beginAtZero: true },
+                },
+              },
+            });
+          },
+          error: () => showAlert("danger", "Failed to load monthly report."),
+        });
+
+        // Logout
+        $("#logoutBtn").click(function () {
+          $.ajax({
+            url: API_BASE + "/logout",
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function () {
+              localStorage.clear();
+              window.location.href = "login.html";
+            },
+            error: function () {
+              alert("Logout failed.");
+            },
+          });
+        });
+      });
+    </script>
+
+    <script>
+      $("#navbarContainer").load("navbar.html");
+      $("#footerContainer").load("footer.html");
+    </script>
+  </body>
+</html>

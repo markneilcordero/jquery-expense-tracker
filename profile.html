@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile - Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .container {
+        flex: 1;
+      }
+      .profile-label {
+        font-weight: 600;
+        color: #6c757d;
+      }
+      .profile-value {
+        font-size: 1.05rem;
+        color: #212529;
+      }
+      .profile-card {
+        border-radius: 0.75rem;
+        background-color: #ffffff;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <div id="navbarContainer"></div>
+
+    <!-- Profile Section -->
+    <div class="container py-5">
+      <div id="alertBox" class="alert d-none"></div>
+
+      <h3 class="fw-bold mb-4">👤 Your Profile</h3>
+
+      <div class="card shadow-sm profile-card p-4">
+        <div class="row mb-3 align-items-center">
+          <label class="col-sm-4 profile-label">Name:</label>
+          <div class="col-sm-8 profile-value" id="profileName">Loading...</div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+          <label class="col-sm-4 profile-label">Email:</label>
+          <div class="col-sm-8 profile-value" id="profileEmail">Loading...</div>
+        </div>
+
+        <div class="row mb-4 align-items-center">
+          <label class="col-sm-4 profile-label">Registered At:</label>
+          <div class="col-sm-8 profile-value" id="profileCreatedAt">
+            Loading...
+          </div>
+        </div>
+
+        <div class="text-end">
+          <button id="refreshBtn" class="btn btn-outline-primary btn-sm">
+            🔄 Refresh Profile
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footerContainer"></div>
+
+    <script>
+      const API_BASE =
+        "https://markneilcordero.com/jquery-expense-tracker/public/api";
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("jquery-expense-tracker-token");
+        if (!token) return (window.location.href = "login.html");
+
+        // Load profile from localStorage
+        function loadProfileFromLocalStorage() {
+          const user = JSON.parse(
+            localStorage.getItem("jquery-expense-tracker-user")
+          );
+          if (user) {
+            $("#profileName").text(user.name);
+            $("#profileEmail").text(user.email);
+            $("#profileCreatedAt").text(
+              new Date(user.created_at).toLocaleString()
+            );
+          } else {
+            $("#profileName, #profileEmail, #profileCreatedAt").text("N/A");
+          }
+        }
+
+        // Load profile from API
+        function loadProfileFromAPI() {
+          $.ajax({
+            url: API_BASE + "/user",
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function (user) {
+              $("#profileName").text(user.name);
+              $("#profileEmail").text(user.email);
+              $("#profileCreatedAt").text(
+                new Date(user.created_at).toLocaleString()
+              );
+              localStorage.setItem(
+                "jquery-expense-tracker-user",
+                JSON.stringify(user)
+              );
+            },
+            error: function () {
+              showAlert("danger", "Failed to fetch user data from API.");
+            },
+          });
+        }
+
+        // Alert handler
+        function showAlert(type, message) {
+          $("#alertBox")
+            .removeClass("d-none alert-success alert-danger")
+            .addClass("alert alert-" + type)
+            .text(message);
+        }
+
+        // Logout
+        $("#logoutBtn").click(function () {
+          $.ajax({
+            url: API_BASE + "/logout",
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + token,
+              Accept: "application/json",
+            },
+            success: function () {
+              localStorage.clear();
+              window.location.href = "login.html";
+            },
+            error: function () {
+              alert("Logout failed.");
+            },
+          });
+        });
+
+        // Init
+        loadProfileFromLocalStorage();
+        $("#refreshBtn").click(loadProfileFromAPI);
+      });
+    </script>
+
+    <script>
+      $("#navbarContainer").load("navbar.html");
+      $("#footerContainer").load("footer.html");
+    </script>
+  </body>
+</html>
