@@ -29,46 +29,53 @@
       }
       .chart-container {
         height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     </style>
   </head>
   <body class="bg-light">
-    <!-- Navbar -->
-    <div id="navbarContainer"></div>
+    <div class="d-flex flex-column min-vh-100">
+      <!-- Navbar -->
+      <div id="navbarContainer"></div>
 
-    <!-- Content -->
-    <div class="container py-5">
-      <div id="alertBox" class="alert d-none"></div>
+      <!-- Main Content -->
+      <main class="container py-5">
+        <div id="alertBox" class="alert d-none"></div>
 
-      <h3 class="fw-bold mb-4">📊 Expense Reports</h3>
+        <h3 class="fw-bold mb-4">📊 Expense Reports</h3>
 
-      <div class="row g-4">
-        <div class="col-md-6">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title mb-3">📂 Expenses by Category</h5>
-              <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
+        <div class="row g-4 flex-wrap flex-md-nowrap">
+          <!-- Pie Chart -->
+          <div class="col-12 col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title mb-3">📂 Expenses by Category</h5>
+                <div class="chart-container">
+                  <canvas id="categoryChart" style="max-width: 350px"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="col-12 col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title mb-3">📅 Monthly Expense Trend</h5>
+                <div class="chart-container">
+                  <canvas id="monthlyChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </main>
 
-        <div class="col-md-6">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title mb-3">📅 Monthly Expense Trend</h5>
-              <div class="chart-container">
-                <canvas id="monthlyChart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Footer -->
+      <footer id="footerContainer"></footer>
     </div>
-
-    <!-- Footer -->
-    <div id="footerContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
