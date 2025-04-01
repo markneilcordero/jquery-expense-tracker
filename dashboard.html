@@ -49,47 +49,6 @@
 
       <h2 class="mb-4 fw-bold text-primary">📊 Dashboard Overview</h2>
 
-      <!-- Time Range Selector -->
-      <div class="d-flex justify-content-end mb-3">
-        <label for="timeRange" class="form-label me-2 mt-2 fw-semibold"
-          >📆 Time Range:</label
-        >
-        <select
-          id="timeRange"
-          class="form-select form-select-sm w-auto d-inline-block"
-        >
-          <option value="this_month">This Month</option>
-          <option value="last_month">Last Month</option>
-          <option value="last_3_months">Last 3 Months</option>
-          <option value="last_6_months">Last 6 Months</option>
-          <option value="this_year">This Year</option>
-        </select>
-      </div>
-
-      <!-- Income vs Expense Chart -->
-      <div class="card shadow mb-4 shadow-hover">
-        <div class="card-body">
-          <h5 class="card-title mb-3 text-success">📈 Income vs Expense</h5>
-          <canvas id="incomeExpenseChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Monthly Trends -->
-      <div class="card shadow mb-4 shadow-hover">
-        <div class="card-body">
-          <h5 class="card-title mb-3 text-primary">📅 Monthly Trends</h5>
-          <canvas id="monthlyTrendsChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Category Trend Charts -->
-      <div class="card shadow mb-4 shadow-hover">
-        <div class="card-body">
-          <h5 class="card-title mb-3 text-info">📊 Category Trends</h5>
-          <div id="categoryTrendCharts"></div>
-        </div>
-      </div>
-
       <!-- Summary Cards -->
       <div class="row g-3 mb-4">
         <div class="col-md-4">
@@ -133,13 +92,54 @@
             </div>
           </div>
         </div>
+
+        <!-- Expenses by Category -->
+        <div class="card shadow shadow-hover">
+          <div class="card-body">
+            <h5 class="card-title mb-3">📂 Expenses by Category</h5>
+            <ul id="categoryList" class="list-group list-group-flush"></ul>
+          </div>
+        </div>
       </div>
 
-      <!-- Expenses by Category -->
-      <div class="card shadow shadow-hover">
+      <!-- Time Range Selector -->
+      <div class="d-flex justify-content-end mb-3">
+        <label for="timeRange" class="form-label me-2 mt-2 fw-semibold"
+          >📆 Time Range:</label
+        >
+        <select
+          id="timeRange"
+          class="form-select form-select-sm w-auto d-inline-block"
+        >
+          <option value="this_month">This Month</option>
+          <option value="last_month">Last Month</option>
+          <option value="last_3_months">Last 3 Months</option>
+          <option value="last_6_months">Last 6 Months</option>
+          <option value="this_year">This Year</option>
+        </select>
+      </div>
+
+      <!-- Income vs Expense Chart -->
+      <div class="card shadow mb-4 shadow-hover">
         <div class="card-body">
-          <h5 class="card-title mb-3">📂 Expenses by Category</h5>
-          <ul id="categoryList" class="list-group list-group-flush"></ul>
+          <h5 class="card-title mb-3 text-success">📈 Income vs Expense</h5>
+          <canvas id="incomeExpenseChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Monthly Trends -->
+      <div class="card shadow mb-4 shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3 text-primary">📅 Monthly Trends</h5>
+          <canvas id="monthlyTrendsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Trend Charts -->
+      <div class="card shadow mb-4 shadow-hover">
+        <div class="card-body">
+          <h5 class="card-title mb-3 text-info">📊 Category Trends</h5>
+          <div id="categoryTrendCharts"></div>
         </div>
       </div>
     </div>
