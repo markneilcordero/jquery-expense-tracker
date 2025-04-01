@@ -43,7 +43,22 @@
     <div class="container mt-5">
       <div id="alertBox" class="alert d-none"></div>
 
-      <h3 class="mb-4 fw-bold text-primary">✏️ Edit Expense</h3>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary mb-0">✏️ Edit Expense</h3>
+        <a href="expenses.html" class="btn btn-secondary">
+          ← Back to Expenses
+        </a>
+      </div>
+
+      <!-- Note Card -->
+      <div class="alert alert-info shadow-sm mb-4" role="alert">
+        <h5 class="fw-semibold">ℹ️ Need Help?</h5>
+        <p class="mb-1">
+          You’re editing an existing expense. Update any field and click
+          <strong>“💾 Update Expense”</strong> to save your changes.
+        </p>
+        <p class="mb-0">Required fields are marked with an asterisk (*).</p>
+      </div>
 
       <form id="editExpenseForm" class="form-section">
         <div class="row g-3">

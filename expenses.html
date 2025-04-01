@@ -36,11 +36,21 @@
     <div class="container mt-5">
       <div id="alertBox" class="alert d-none"></div>
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
         <h3 class="fw-bold">📋 Your Expenses</h3>
         <a href="add_expense.html" class="btn btn-success btn-sm"
           >➕ Add Expense</a
         >
+      </div>
+
+      <!-- Note Card -->
+      <div class="alert alert-info shadow-sm mb-4" role="alert">
+        <h5 class="fw-semibold">💡 How to Use This Page</h5>
+        <p class="mb-1">View, edit, or delete your recorded expenses here.</p>
+        <p class="mb-0">
+          Click <strong>"➕ Add Expense"</strong> to log a new entry, or use the
+          buttons next to each item to manage your records.
+        </p>
       </div>
 
       <div id="expensesList" class="row gy-4"></div>

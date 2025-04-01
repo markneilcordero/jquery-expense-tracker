@@ -1,208 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Public Dashboard - Expense Tracker</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Public Dashboard - Expense Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
 
-    .chart-card {
-      margin-bottom: 2rem;
-    }
+      .chart-card {
+        margin-bottom: 2rem;
+      }
 
-    .chart-wrapper {
-      max-width: 100%;
-      overflow-x: auto;
-      display: flex;
-      justify-content: center;
-    }
+      .chart-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        display: flex;
+        justify-content: center;
+      }
 
-    .chart-canvas {
-      max-width: 600px;
-      width: 100%;
-    }
+      .chart-canvas {
+        max-width: 600px;
+        width: 100%;
+      }
 
-    .dashboard-title {
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+      .dashboard-title {
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
 
-    .card-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="d-flex flex-column min-vh-100">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="#">Expense Tracker</a>
-        <div class="ms-auto">
-          <a href="login.html" class="btn btn-outline-light me-2">Login</a>
-          <a href="register.html" class="btn btn-light">Register</a>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container my-5 flex-grow-1">
-      <h3 class="dashboard-title">📊 Public Dashboard (Example Data)</h3>
-
-      <!-- Summary Cards -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card text-white bg-success shadow-sm">
-            <div class="card-body">
-              <h6 class="card-title">Total Income</h6>
-              <p id="totalIncome" class="fs-4 mb-0">₱0.00</p>
-            </div>
+      .card-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex flex-column min-vh-100">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+          <a class="navbar-brand fw-bold" href="#">Expense Tracker</a>
+          <div class="ms-auto">
+            <a href="login.html" class="btn btn-outline-light me-2">Login</a>
+            <a href="register.html" class="btn btn-light">Register</a>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card text-white bg-danger shadow-sm">
-            <div class="card-body">
-              <h6 class="card-title">Total Expense</h6>
-              <p id="totalExpense" class="fs-4 mb-0">₱0.00</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-white bg-primary shadow-sm">
-            <div class="card-body">
-              <h6 class="card-title">Net Balance</h6>
-              <p id="netBalance" class="fs-4 mb-0">₱0.00</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </nav>
 
-      <!-- Charts Section -->
-      <div class="row g-4">
-        <!-- Income vs Expense -->
-        <div class="col-md-4">
-          <div class="card chart-card shadow-sm h-100">
-            <div class="card-body">
-              <h5 class="card-title">📈 Income vs Expense</h5>
-              <div class="chart-wrapper">
-                <canvas id="incomeExpenseChart" class="chart-canvas" height="250"></canvas>
+      <!-- Main Content -->
+      <div class="container my-5 flex-grow-1">
+        <h3 class="dashboard-title">📊 Public Dashboard (Example Data)</h3>
+        <div class="alert alert-info shadow-sm" role="alert">
+          <h5 class="fw-semibold">ℹ️ About This Project</h5>
+          <p class="mb-1">
+            This is a public demo of the
+            <strong>Expense Tracker</strong> application. It shows example data
+            for incomes, expenses, and trends.
+          </p>
+          <p class="mb-0">
+            To start tracking your own finances, please
+            <a href="register.html" class="fw-bold text-decoration-underline"
+              >register</a
+            >
+            or
+            <a href="login.html" class="fw-bold text-decoration-underline"
+              >log in</a
+            >.
+          </p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-success shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">Total Income</h6>
+                <p id="totalIncome" class="fs-4 mb-0">₱0.00</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-danger shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">Total Expense</h6>
+                <p id="totalExpense" class="fs-4 mb-0">₱0.00</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-primary shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">Net Balance</h6>
+                <p id="netBalance" class="fs-4 mb-0">₱0.00</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Monthly Trends -->
-        <div class="col-md-4">
-          <div class="card chart-card shadow-sm h-100">
-            <div class="card-body">
-              <h5 class="card-title">📅 Monthly Trends</h5>
-              <div class="chart-wrapper">
-                <canvas id="monthlyTrendsChart" class="chart-canvas" height="250"></canvas>
+        <!-- Charts Section -->
+        <div class="row g-4">
+          <!-- Income vs Expense -->
+          <div class="col-md-4">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title">📈 Income vs Expense</h5>
+                <div class="chart-wrapper">
+                  <canvas
+                    id="incomeExpenseChart"
+                    class="chart-canvas"
+                    height="250"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Trends -->
+          <div class="col-md-4">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title">📅 Monthly Trends</h5>
+                <div class="chart-wrapper">
+                  <canvas
+                    id="monthlyTrendsChart"
+                    class="chart-canvas"
+                    height="250"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Trends -->
+          <div class="col-md-4">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title">📂 Category Trends</h5>
+                <div id="categoryTrendCharts"></div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Category Trends -->
-        <div class="col-md-4">
-          <div class="card chart-card shadow-sm h-100">
-            <div class="card-body">
-              <h5 class="card-title">📂 Category Trends</h5>
-              <div id="categoryTrendCharts"></div>
-            </div>
-          </div>
-        </div>
       </div>
+
+      <!-- Footer -->
+      <div id="footerContainer"></div>
     </div>
 
-    <!-- Footer -->
-    <div id="footerContainer"></div>
-  </div>
+    <!-- Script to load footer.html -->
+    <script>
+      $("#footerContainer").load("footer.html");
+    </script>
 
-  <!-- Script to load footer.html -->
-  <script>
-    $("#footerContainer").load("footer.html");
-  </script>
+    <!-- Dashboard Scripts -->
+    <script>
+      const API_BASE =
+        "https://markneilcordero.com/jquery-expense-tracker/public/api";
+      let totalIncome = 0;
+      let totalExpense = 0;
 
-  <!-- Dashboard Scripts -->
-  <script>
-    const API_BASE = "https://markneilcordero.com/jquery-expense-tracker/public/api";
-    let totalIncome = 0;
-    let totalExpense = 0;
+      function updateNetBalance() {
+        const net = totalIncome - totalExpense;
+        $("#netBalance").text("₱" + parseFloat(net).toFixed(2));
+      }
 
-    function updateNetBalance() {
-      const net = totalIncome - totalExpense;
-      $("#netBalance").text("₱" + parseFloat(net).toFixed(2));
-    }
-
-    function renderCharts(income, expense, trends) {
-      new Chart(document.getElementById("incomeExpenseChart").getContext("2d"), {
-        type: "bar",
-        data: {
-          labels: ["Income", "Expense"],
-          datasets: [{
-            label: "Amount (₱)",
-            data: [income, expense],
-            backgroundColor: ["#198754", "#dc3545"],
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-
-      new Chart(document.getElementById("monthlyTrendsChart").getContext("2d"), {
-        type: "line",
-        data: {
-          labels: trends.labels,
-          datasets: [
-            {
-              label: "Income",
-              data: trends.income,
-              borderColor: "#198754",
-              backgroundColor: "rgba(25,135,84,0.2)",
-              fill: true,
-              tension: 0.4
+      function renderCharts(income, expense, trends) {
+        new Chart(
+          document.getElementById("incomeExpenseChart").getContext("2d"),
+          {
+            type: "bar",
+            data: {
+              labels: ["Income", "Expense"],
+              datasets: [
+                {
+                  label: "Amount (₱)",
+                  data: [income, expense],
+                  backgroundColor: ["#198754", "#dc3545"],
+                },
+              ],
             },
-            {
-              label: "Expense",
-              data: trends.expense,
-              borderColor: "#dc3545",
-              backgroundColor: "rgba(220,53,69,0.2)",
-              fill: true,
-              tension: 0.4
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-    }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { y: { beginAtZero: true } },
+            },
+          }
+        );
 
-    function loadCategoryTrends() {
-      $.ajax({
-        url: `${API_BASE}/analytics/public-category-trends`,
-        method: "GET",
-        headers: { Accept: "application/json" },
-        success: function (res) {
-          const container = $("#categoryTrendCharts");
-          container.empty();
-          res.datasets.forEach((dataset, index) => {
-            const canvasId = `catTrendChart${index}`;
-            container.append(`
+        new Chart(
+          document.getElementById("monthlyTrendsChart").getContext("2d"),
+          {
+            type: "line",
+            data: {
+              labels: trends.labels,
+              datasets: [
+                {
+                  label: "Income",
+                  data: trends.income,
+                  borderColor: "#198754",
+                  backgroundColor: "rgba(25,135,84,0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: "Expense",
+                  data: trends.expense,
+                  borderColor: "#dc3545",
+                  backgroundColor: "rgba(220,53,69,0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { y: { beginAtZero: true } },
+            },
+          }
+        );
+      }
+
+      function loadCategoryTrends() {
+        $.ajax({
+          url: `${API_BASE}/analytics/public-category-trends`,
+          method: "GET",
+          headers: { Accept: "application/json" },
+          success: function (res) {
+            const container = $("#categoryTrendCharts");
+            container.empty();
+            res.datasets.forEach((dataset, index) => {
+              const canvasId = `catTrendChart${index}`;
+              container.append(`
               <div class="mb-4">
                 <h6 class="mb-2">${dataset.label}</h6>
                 <div class="chart-wrapper">
@@ -210,63 +248,65 @@
                 </div>
               </div>
             `);
-            new Chart(document.getElementById(canvasId).getContext("2d"), {
-              type: "line",
-              data: {
-                labels: res.labels,
-                datasets: [{
-                  label: dataset.label,
-                  data: dataset.data,
-                  borderColor: "#0d6efd",
-                  backgroundColor: "rgba(13,110,253,0.2)",
-                  fill: true,
-                  tension: 0.4
-                }]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } }
-              }
+              new Chart(document.getElementById(canvasId).getContext("2d"), {
+                type: "line",
+                data: {
+                  labels: res.labels,
+                  datasets: [
+                    {
+                      label: dataset.label,
+                      data: dataset.data,
+                      borderColor: "#0d6efd",
+                      backgroundColor: "rgba(13,110,253,0.2)",
+                      fill: true,
+                      tension: 0.4,
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: { y: { beginAtZero: true } },
+                },
+              });
             });
-          });
-        },
-        error: () => console.error("Failed to load public category trends.")
+          },
+          error: () => console.error("Failed to load public category trends."),
+        });
+      }
+
+      $(document).ready(function () {
+        $.ajax({
+          url: `${API_BASE}/analytics/public-summary`,
+          method: "GET",
+          headers: { Accept: "application/json" },
+          success: function (response) {
+            totalIncome = response.total_income || 0;
+            totalExpense = response.total_expense || 0;
+
+            $("#totalIncome").text("₱" + parseFloat(totalIncome).toFixed(2));
+            $("#totalExpense").text("₱" + parseFloat(totalExpense).toFixed(2));
+            updateNetBalance();
+
+            $.ajax({
+              url: `${API_BASE}/analytics/public-monthly-trends`,
+              method: "GET",
+              headers: { Accept: "application/json" },
+              success: function (monthlyData) {
+                renderCharts(totalIncome, totalExpense, monthlyData);
+              },
+              error: function () {
+                console.error("Failed to load public monthly trends.");
+              },
+            });
+
+            loadCategoryTrends();
+          },
+          error: function () {
+            console.error("Failed to load public summary.");
+          },
+        });
       });
-    }
-
-    $(document).ready(function () {
-      $.ajax({
-        url: `${API_BASE}/analytics/public-summary`,
-        method: "GET",
-        headers: { Accept: "application/json" },
-        success: function (response) {
-          totalIncome = response.total_income || 0;
-          totalExpense = response.total_expense || 0;
-
-          $("#totalIncome").text("₱" + parseFloat(totalIncome).toFixed(2));
-          $("#totalExpense").text("₱" + parseFloat(totalExpense).toFixed(2));
-          updateNetBalance();
-
-          $.ajax({
-            url: `${API_BASE}/analytics/public-monthly-trends`,
-            method: "GET",
-            headers: { Accept: "application/json" },
-            success: function (monthlyData) {
-              renderCharts(totalIncome, totalExpense, monthlyData);
-            },
-            error: function () {
-              console.error("Failed to load public monthly trends.");
-            }
-          });
-
-          loadCategoryTrends();
-        },
-        error: function () {
-          console.error("Failed to load public summary.");
-        }
-      });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
