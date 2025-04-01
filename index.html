@@ -170,7 +170,10 @@
 
       function updateNetBalance() {
         const net = totalIncome - totalExpense;
-        $("#netBalance").text("₱" + parseFloat(net).toFixed(2));
+        const formatted =
+          "₱" +
+          parseFloat(net).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+        $("#netBalance").text(formatted);
       }
 
       function renderCharts(income, expense, trends) {
@@ -284,8 +287,19 @@
             totalIncome = response.total_income || 0;
             totalExpense = response.total_expense || 0;
 
-            $("#totalIncome").text("₱" + parseFloat(totalIncome).toFixed(2));
-            $("#totalExpense").text("₱" + parseFloat(totalExpense).toFixed(2));
+            $("#totalIncome").text(
+              "₱" +
+                parseFloat(totalIncome).toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })
+            );
+            $("#totalExpense").text(
+              "₱" +
+                parseFloat(totalExpense).toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })
+            );
+
             updateNetBalance();
 
             $.ajax({

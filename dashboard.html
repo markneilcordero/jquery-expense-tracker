@@ -196,10 +196,19 @@
               totalIncome = response.total_income || 0;
               totalExpense = response.total_expense || 0;
 
-              $("#totalIncome").text("₱" + parseFloat(totalIncome).toFixed(2));
-              $("#totalExpense").text(
-                "₱" + parseFloat(totalExpense).toFixed(2)
+              $("#totalIncome").text(
+                "₱" +
+                  parseFloat(totalIncome).toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                  })
               );
+              $("#totalExpense").text(
+                "₱" +
+                  parseFloat(totalExpense).toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                  })
+              );
+
               updateNetBalance();
               renderIncomeExpenseChart(totalIncome, totalExpense);
 
@@ -210,7 +219,7 @@
                   categoryList.append(`
                       <li class="list-group-item d-flex justify-content-between">
                         <span>${item.category || "Uncategorized"}</span>
-                        <span>₱${parseFloat(item.total).toFixed(2)}</span>
+                        <span>₱${parseFloat(item.total).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
                       </li>`);
                 });
               } else {
@@ -327,7 +336,7 @@
 
         function updateNetBalance() {
           const net = totalIncome - totalExpense;
-          const formatted = "₱" + parseFloat(net).toFixed(2);
+          const formatted = "₱" + parseFloat(net).toLocaleString("en-PH", { minimumFractionDigits: 2 });
           $("#netBalance").text(formatted);
         }
 
